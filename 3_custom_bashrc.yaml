@@ -1,0 +1,44 @@
+---
+- hosts: localhost
+  become: yes
+  vars_prompt:
+    - name: "user"
+      prompt: "Digite o seu usuário da máquina"
+      private: no
+
+  tasks:
+    - name: "Customize .bashrc file: formatting terminal prompt"
+      blockinfile:
+        path: "/home/{{ user }}/.bashrc"
+        block: |
+          # Show git branch name
+          force_color_prompt=yes
+          color_prompt=yes
+          parse_git_branch() {
+            git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+          }
+          if [ "$color_prompt" = yes ]; then
+            PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[01;31m\]$(parse_git_branch)\[\033[00m\]\$ '
+          else
+            PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w$(parse_git_branch)\$ '
+          fi
+          unset color_prompt force_color_prompt
+          ########################### BEGIN JAVA
+          addJavaToPath(){
+            export PATH=$JAVA_HOME/bin:$PATH
+          }
+          jdk11(){
+            export JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
+            addJavaToPath
+          }
+          jdk8() {
+            export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
+            addJavaToPath
+          }
+          jdk7() {
+            export JAVA_HOME="/usr/lib/jvm/jdk1.7.0_80"
+            addJavaToPath
+          }
+          ########################### BEGIN JAVA
+
+
